@@ -2,7 +2,7 @@ import { useOfficialRates } from './useOfficialRates';
 import CurrencyConverter from './CurrencyConverter';
 
 export default function ExchangeTable({ selectedId, onSelect }) {
-  const { rates, loading, error } = useOfficialRates();
+  const { rates, loading, error, priceMargin } = useOfficialRates();
 
   return (
     <section className="table-section">
@@ -61,6 +61,14 @@ export default function ExchangeTable({ selectedId, onSelect }) {
               );
             })}
           </div>
+
+          {priceMargin && (
+            <div className="priceMargin">
+              <span className="priceMargin__label">هامش الحركة السعري المركزي</span>
+              <span className="priceMargin__value">{priceMargin}%</span>
+            </div>
+          )}
+
         </div>
         <CurrencyConverter />
       </div>

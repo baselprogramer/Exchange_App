@@ -8,6 +8,7 @@ const CACHE_TTL = 60_000; // 1 minute
 
 export function useOfficialRates() {
   const [rates,   setRates]   = useState(cachedRates || []);
+  const [priceMargin, setPriceMargin] = useState(null);
   const [loading, setLoading] = useState(!cachedRates);
   const [error,   setError]   = useState('');
 
@@ -25,11 +26,13 @@ export function useOfficialRates() {
         if (!res.ok) throw new Error('Network error');
         return res.json();
       })
+
       .then(data => {
         const rows = data.rows || [];
         cachedRates = rows;
-        cacheTime   = Date.now();
+        cacheTime = Date.now();
         setRates(rows);
+        setPriceMargin(data.priceMargin || null);
         setLoading(false);
       })
       .catch(() => {
@@ -38,5 +41,5 @@ export function useOfficialRates() {
       });
   }, []);
 
-  return { rates, loading, error };
+  return { rates, loading, error , priceMargin};
 }
