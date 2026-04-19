@@ -61,14 +61,6 @@ export default function ExchangeTable({ selectedId, onSelect }) {
               );
             })}
           </div>
-
-          {priceMargin && (
-            <div className="priceMargin">
-              <span className="priceMargin__label">هامش الحركة السعري المركزي</span>
-              <span className="priceMargin__value">{priceMargin}%</span>
-            </div>
-          )}
-
         </div>
         <CurrencyConverter />
       </div>

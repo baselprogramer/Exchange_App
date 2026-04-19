@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useOfficialRates } from './useOfficialRates';
 
 export default function Table() {
-  const { rates, loading } = useOfficialRates();
+  const { rates, loading , priceMargin} = useOfficialRates();
 
   const [direction, setDirection] = useState('نحو الأعلى');
   const directionClass = direction === 'نحو الأعلى' ? 'st-direction--up' : 'st-direction--down';
@@ -30,14 +30,14 @@ export default function Table() {
         <div className="st-cell"><span className="st-num">{(buy * 0.93).toFixed(2)}</span></div>
         <div className="st-cell"><span className="st-num">{(sell * 1.07).toFixed(2)}</span></div>
         <div className="st-cell st-cell--highlight"><span className="st-num">{average.toFixed(2)}</span></div>
-        <div className="st-cell st-cell--highlight"><span className="st-num">7%</span></div>
+        <div className="st-cell st-cell--highlight"><span className="st-num">{priceMargin}%</span></div>
         <div className={`st-cell ${directionClass}`}>
           <span className="st-direction-badge" onClick={() => setDirection(d => d === 'نحو الأعلى' ? 'نحو الأسفل' : 'نحو الأعلى')}>
             {direction} <span className="direction-arrow">{direction === 'نحو الأعلى' ? '↑' : '↓'}</span>
           </span>
         </div>
         <div className="st-cell st-cell--company">
-          <input className="st-num" type="number" step="0.01" defaultValue="0" min="-7" max="7" />
+          <input className="st-num" type="number" step="0.01" defaultValue="0" min={`-${priceMargin}`} max={`${priceMargin}`} />
         </div>
       </div>
       <div className="st-sub-row">
