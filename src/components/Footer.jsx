@@ -5,7 +5,7 @@ export default function Footer() {
         © 2022-2026 OFFICIAL CORPORATE TERMINAL
       </div>
       <div className="footer-right-section">
-        <span className="footer-department">Salah Soft</span>
+        <span className="footer-department">Salah Soft.com</span>
       </div>
     </footer>
   );
