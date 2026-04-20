@@ -96,7 +96,7 @@ export default function Table({ onMarginChange }) {
             <input
               className="st-num"
               type="number"
-              step="0.1"
+              step="0.001"
               value={displayValue}
               onChange={e => handleMargin(e.target.value)}
               placeholder="0"
