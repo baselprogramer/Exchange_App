@@ -1283,4 +1283,187 @@ body  {
   
   .table-data-row { padding: 12px 8px 8px; gap: 8px; } /* Tighter rows */
   .st-header-cell, .st-cell { padding: 6px 8px; font-size: 10px; } /* Tiny cells */
+
+
+  /* ══════════════════════════════════════════════════════════
+   CompanyPage / MarginPage — أضف في نهاية index.css
+   ══════════════════════════════════════════════════════════ */
+
+
+/* ── wrapper الجدول ── */
+.company-table-wrap {
+  flex: 1;
+  min-width: 0;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  overflow-x: auto;
+  box-shadow: 0 20px 25px -5px var(--shadow-dark);
+  animation: fadeUp 0.45s ease both;
+}
+
+/* ── شريط الهامش داخل الجدول ── */
+.company-margin-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--accent-gold-rgba-05);
+  direction: rtl;
+}
+
+.cmb-group { display: flex; flex-direction: column; gap: 3px; }
+
+.cmb-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: 'Tajawal', sans-serif;
+  white-space: nowrap;
+}
+
+.cmb-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent-gold);
+  font-family: 'Cairo', sans-serif;
+  direction: ltr;
+  display: inline-block;
+}
+
+.cmb-sep {
+  width: 1px;
+  height: 40px;
+  background: var(--border-color);
+  flex-shrink: 0;
+}
+
+.cmb-input-row { display: flex; align-items: center; gap: 5px; }
+
+.cmb-input {
+  width: 90px;
+  padding: 6px 10px;
+  background-color: var(--accent-gold-rgba-06);
+  border: 1px solid var(--border-heavy);
+  border-radius: 7px;
+  color: var(--text-primary);
+  font-size: 15px;
+  font-weight: 700;
+  font-family: 'Cairo', sans-serif;
+  text-align: center;
+  outline: none;
+  direction: ltr;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+.cmb-input:focus { border-color: var(--accent-gold-rgba-50); background-color: var(--accent-gold-rgba-08); }
+.cmb-input--err  { border-color: var(--red-border) !important; background-color: var(--red-bg) !important; }
+
+.cmb-pct { font-size: 15px; font-weight: 700; color: var(--accent-gold); font-family: 'Cairo', sans-serif; }
+.cmb-err { font-size: 11px; color: var(--red); font-family: 'Tajawal', sans-serif; margin-top: 2px; }
+
+.cmb-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 6px 12px;
+  background: var(--accent-gold-rgba-06);
+  border: 1px solid var(--border-light);
+  border-radius: 7px;
+}
+
+.cmb-export {
+  margin-right: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  background: linear-gradient(135deg, var(--bg-secondary), var(--accent-gold-rgba-12));
+  border: 1px solid var(--accent-gold-rgba-40);
+  border-radius: 8px;
+  color: var(--accent-gold);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'Cairo', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.cmb-export:hover:not(:disabled) {
+  background: var(--accent-gold-rgba-15);
+  border-color: var(--accent-gold-rgba-60);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px var(--glow);
+}
+.cmb-export:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ── grid الجدول — 8 أعمدة ── */
+.company-header-row,
+.company-data-row {
+  display: grid !important;
+  grid-template-columns: 1.8fr 80px 110px 110px 110px 120px 120px 110px !important;
+  align-items: center;
+  direction: rtl;
+  min-width: 860px;
+}
+
+.company-header-row {
+  background-color: var(--accent-gold-rgba-10);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.company-data-row {
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border-bottom: 1px solid var(--border-light);
+  animation: rowIn 0.35s ease both;
+}
+.company-data-row:last-child { border-bottom: none; }
+.company-data-row:hover { background-color: var(--accent-gold-rgba-10) !important; }
+.company-data-row.table-row-even { background-color: var(--accent-gold-rgba-05); }
+.company-data-row.table-row-odd  { background-color: transparent; }
+.company-data-row.table-row-selected {
+  background-color: var(--accent-gold-rgba-12) !important;
+  border-right: 3px solid var(--accent-gold);
+}
+.company-data-row.table-row-selected .table-country-name { color: var(--accent-gold); }
+
+/* ── تمييز أعمدة النشرة والعميل ── */
+.mgt-official { opacity: 0.6; }
+.mgt-buy  { color: var(--green) !important; font-weight: 700; }
+.mgt-sell { color: var(--red)   !important; font-weight: 700; }
+.chip__value.mgt-buy  { color: var(--green); }
+.chip__value.mgt-sell { color: var(--red);   }
+
+/* فاصل بصري بين النشرة والعميل */
+.company-header-row .table-header-cell:nth-child(6),
+.company-data-row   .table-data-cell:nth-child(6) {
+  border-right: 1px solid var(--border-color);
+}
+
+/* navbar btn */
+.table-navbar__btn--margin { display: inline-flex; align-items: center; gap: 5px; }
+
+/* ── Mobile ── */
+@media (max-width: 480px) {
+  .company-margin-bar { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .cmb-sep            { display: none; }
+  .cmb-export         { margin-right: 0; width: 100%; justify-content: center; }
+  .company-header-row { display: none !important; }
+  .company-data-row {
+    display: flex !important;
+    flex-direction: column;
+    min-width: unset;
+    padding: 14px 14px 10px;
+    gap: 10px;
+    border-bottom: 1px solid var(--border-medium) !important;
+  }
+  .company-data-row .desktop-cell       { display: none; }
+  .company-data-row .card-chips         { display: flex; }
+  .company-data-row .table-country-cell { padding: 0; }
+}
 }

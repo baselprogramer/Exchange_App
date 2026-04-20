@@ -4,6 +4,7 @@ import Header from './components/Header.jsx';
 import Footer from './components/Footer.jsx';
 import HomePage from './pages/HomePage.jsx';
 import ForexPage from './pages/ForexPage.jsx';
+import CompanyPage from './pages/CompanyPage.jsx';
 
 function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
@@ -23,6 +24,7 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/forex" element={<ForexPage />} />
+            <Route path="/company"  element={<CompanyPage />} />
           </Routes>
         </main>
         <Footer />

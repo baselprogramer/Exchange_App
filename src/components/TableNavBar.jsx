@@ -2,16 +2,20 @@ import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
 
 const FOREX_SOURCES = [
-  { id: 'central',   label: 'المركزي'  },
-  { id: 'reuters',   label: 'Reuters'  },
-  { id: 'investing', label: 'Investing'},
+  { id: 'central',   label: 'المركزي'   },
+  { id: 'reuters',   label: 'Reuters'   },
+  { id: 'investing', label: 'Investing' },
 ];
 
 export default function TableNavBar() {
   const location       = useLocation();
   const [searchParams] = useSearchParams();
-  const isForex        = location.pathname === '/forex';
-  const activeSource   = searchParams.get('source') || 'central';
+
+  const isHome    = location.pathname === '/';
+  const isForex   = location.pathname === '/forex';
+  const isCompany = location.pathname === '/company';
+
+  const activeSource = searchParams.get('source') || 'central';
 
   const [dropOpen, setDropOpen] = useState(false);
   const dropRef = useRef(null);
@@ -28,12 +32,19 @@ export default function TableNavBar() {
 
   return (
     <nav className="table-navbar">
-      <Link to="/" className={`table-navbar__btn ${!isForex ? 'table-navbar__btn--active' : ''}`}>
+
+      {/* ── رسمي ── */}
+      <Link
+        to="/"
+        className={`table-navbar__btn ${isHome ? 'table-navbar__btn--active' : ''}`}
+      >
         رسمي
       </Link>
+
+      {/* ── فوركس ── */}
       <div className="table-navbar__dropdown-wrap" ref={dropRef}>
         <button
-          className={`table-navbar__btn table-navbar__btn--forex ${isForex ? 'table-navbar__btn--active' : ''}`}
+          className={`table-navbar__btn ${isForex ? 'table-navbar__btn--active' : ''}`}
           onClick={() => setDropOpen(prev => !prev)}
         >
           {isForex ? activeForexLabel : 'فوركس'}
@@ -54,6 +65,16 @@ export default function TableNavBar() {
           </div>
         )}
       </div>
+
+      {/* ── هامش الشركة ── */}
+      <Link
+        to="/company"
+        className={`table-navbar__btn table-navbar__btn--margin ${isCompany ? 'table-navbar__btn--active' : ''}`}
+      >
+       
+        هامش الشركة
+      </Link>
+
     </nav>
   );
 }
