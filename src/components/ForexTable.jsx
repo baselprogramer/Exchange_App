@@ -12,22 +12,36 @@ async function fetchCentral() {
   const data = await res.json();
   return (data.rows || []).map(r => ({
     ...r,
-    avg: parseFloat(((Number(r.buy) + Number(r.sell)) / 2).toFixed(2)),
+    buy: parseFloat(r.buy).toFixed(4),
+    sell: parseFloat(r.sell).toFixed(4),
+    avg: parseFloat(((Number(r.buy) + Number(r.sell)) / 2).toFixed(4)),
   }));
 }
 
 async function fetchExchangeRate() {
   const res  = await fetch(`https://v6.exchangerate-api.com/v6/${REUTERS_KEY}/latest/USD`);
   const data = await res.json();
+  if(data.conversion_rates.EUR ) { data.conversion_rates.EUR = parseFloat((1/data.conversion_rates.EUR).toFixed(4)); }
+  if(data.conversion_rates.GBP ) { data.conversion_rates.GBP = parseFloat((1/data.conversion_rates.GBP).toFixed(4)); }
+  if(data.conversion_rates.AUD ) { data.conversion_rates.AUD = parseFloat((1/data.conversion_rates.AUD).toFixed(4)); }
+
+
   return buildRows(data.conversion_rates);
+
+  
 }
 
 async function fetchCoinbase() {
   const res  = await fetch('https://api.coinbase.com/v2/exchange-rates?currency=USD');
   const data = await res.json();
   const raw  = data.data.rates;
+  if(data.data.rates.EUR ) { data.data.rates.EUR = parseFloat((1/data.data.rates.EUR).toFixed(4)); }
+ if(data.data.rates.GBP ) { data.data.rates.GBP = parseFloat((1/data.data.rates.GBP).toFixed(4)); }
+ if(data.data.rates.AUD ) { data.data.rates.AUD = parseFloat((1/data.data.rates.AUD).toFixed(4)); }
   const rates = {};
   for (const [key, val] of Object.entries(raw)) rates[key] = parseFloat(val);
+
+
   return buildRows(rates);
 }
 
@@ -164,19 +178,19 @@ export default function ForexTable() {
                   <span className="table-currency-code table-numeric">{row.code}</span>
                 </div>
                 <div className="table-data-cell col-num desktop-cell">
-                  <span className="table-numeric">{Number(row.buy).toLocaleString()}</span>
+                  <span className="table-numeric">{Number(row.buy).toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}</span>
                 </div>
                 <div className="table-data-cell col-num desktop-cell">
-                  <span className="table-numeric">{Number(row.sell).toLocaleString()}</span>
+                  <span className="table-numeric">{Number(row.sell).toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}</span>
                 </div>
                 <div className="table-data-cell col-num desktop-cell">
-                  <span className="table-numeric">{Number(row.avg).toLocaleString()}</span>
+                  <span className="table-numeric">{Number(row.avg).toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}</span>
                 </div>
                 <div className="card-chips">
                   <div className="chip"><span className="chip__label">كود</span><span className="chip__value chip__value--code">{row.code}</span></div>
-                  <div className="chip"><span className="chip__label">شراء</span><span className="chip__value">{Number(row.buy).toLocaleString()}</span></div>
-                  <div className="chip"><span className="chip__label">بيع</span><span className="chip__value">{Number(row.sell).toLocaleString()}</span></div>
-                  <div className="chip"><span className="chip__label">وسطي</span><span className="chip__value">{Number(row.avg).toLocaleString()}</span></div>
+                  <div className="chip"><span className="chip__label">شراء</span><span className="chip__value">{Number(row.buy).toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}</span></div>
+                  <div className="chip"><span className="chip__label">بيع</span><span className="chip__value">{Number(row.sell).toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}</span></div>
+                  <div className="chip"><span className="chip__label">وسطي</span><span className="chip__value">{Number(row.avg).toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}</span></div>
                 </div>
               </div>
             ))}
