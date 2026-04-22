@@ -1,8 +1,9 @@
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import CurrencyHero from '../components/CurrencyHero';
 import Table from '../components/Table';
 import TableNavBar from '../components/TableNavBar';
 import { useOfficialRates } from '../components/useOfficialRates';
+import { useForexRates, FOREX_SOURCE_LABELS } from '../components/useForexRates';
 import * as XLSX from 'xlsx';
 
 function getSafeMargin(raw) {
@@ -13,18 +14,36 @@ function getSafeMargin(raw) {
 
 const CSS = `
 .company-table-wrap{flex:1;min-width:0;background-color:var(--bg-secondary);border:1px solid var(--border-color);border-radius:12px;overflow:hidden;overflow-x:auto;box-shadow:0 20px 25px -5px var(--shadow-dark);animation:fadeUp 0.45s ease both;}
-.company-margin-bar{display:flex;align-items:center;flex-wrap:wrap;gap:16px;padding:12px 16px;border-bottom:1px solid var(--border-color);background-color:var(--accent-gold-rgba-05);direction:rtl;}
+.company-margin-bar{display:flex;align-items:center;flex-wrap:wrap;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border-color);background-color:var(--accent-gold-rgba-05);direction:rtl;}
 .cmb-group{display:flex;flex-direction:column;gap:4px;}
 .cmb-label{font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.05em;font-family:'Tajawal',sans-serif;white-space:nowrap;}
-.cmb-badges{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
-.cmb-badge{padding:5px 12px;border-radius:20px;font-size:13px;font-weight:700;font-family:'Cairo',sans-serif;direction:ltr;white-space:nowrap;}
+.cmb-inline-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;direction:rtl;}
+.cmb-badge{padding:5px 12px;border-radius:20px;font-size:13px;font-weight:700;font-family:'Cairo',sans-serif;direction:ltr;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;}
+.cmb-badge-label{font-size:9px;opacity:.7;letter-spacing:.04em;font-family:'Tajawal',sans-serif;}
 .cmb-badge--buy {border:1px solid var(--green-border);color:var(--green);background:var(--green-bg);}
 .cmb-badge--sell{border:1px solid var(--red-border);color:var(--red);background:var(--red-bg);}
 .cmb-badge--avg {border:1px solid var(--accent-gold-rgba-40);color:var(--accent-gold);background:var(--accent-gold-rgba-08);}
+.cmb-margin-pill{padding:5px 14px;border-radius:20px;font-size:15px;font-weight:700;font-family:'Cairo',sans-serif;border:1px solid;direction:ltr;display:inline-block;min-width:60px;text-align:center;transition:all .2s;}
 .cmb-margin-display{font-size:18px;font-weight:700;font-family:'Cairo',sans-serif;direction:ltr;display:inline-block;}
+
+/* Forex dropdown */
+.cmb-forex-wrap{position:relative;}
+.cmb-forex-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:var(--accent-gold-rgba-08);border:1px solid var(--accent-gold-rgba-30);border-radius:20px;color:var(--accent-gold);font-size:12px;font-weight:700;font-family:'Cairo',sans-serif;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.cmb-forex-btn:hover{background:var(--accent-gold-rgba-15);border-color:var(--accent-gold-rgba-50);}
+.cmb-forex-btn--active{background:var(--accent-gold-rgba-15);border-color:var(--accent-gold-rgba-60);box-shadow:0 0 0 1px var(--accent-gold-rgba-20);}
+.cmb-forex-clear{background:var(--red-bg);border-color:var(--red-border);color:var(--red);}
+.cmb-forex-clear:hover{background:var(--red-bg);border-color:var(--red);}
+.cmb-forex-dropdown{position:absolute;top:calc(100% + 6px);right:0;background-color:var(--bg-secondary);border:1px solid var(--border-color);border-radius:10px;overflow:hidden;box-shadow:0 8px 24px var(--shadow-dropdown);z-index:200;min-width:160px;animation:fadeUp 0.15s ease both;}
+.cmb-forex-item{display:block;width:100%;padding:10px 16px;font-size:13px;font-family:'Cairo',sans-serif;color:var(--text-secondary);background:none;border:none;text-align:right;cursor:pointer;transition:background-color .15s,color .15s;direction:rtl;}
+.cmb-forex-item:hover{background-color:var(--accent-gold-rgba-10);color:var(--text-primary);}
+.cmb-forex-item--active{background-color:var(--accent-gold-rgba-12);color:var(--accent-gold);font-weight:700;}
+.cmb-forex-item:not(:last-child){border-bottom:1px solid var(--border-light);}
+.cmb-forex-source-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;font-family:'Tajawal',sans-serif;background:var(--accent-gold-rgba-12);border:1px solid var(--accent-gold-rgba-30);color:var(--accent-gold);}
+
 .cmb-export{margin-right:auto;display:inline-flex;align-items:center;gap:6px;padding:7px 16px;background:linear-gradient(135deg,var(--bg-secondary),var(--accent-gold-rgba-12));border:1px solid var(--accent-gold-rgba-40);border-radius:8px;color:var(--accent-gold);font-size:13px;font-weight:700;font-family:'Cairo',sans-serif;cursor:pointer;transition:all .2s;white-space:nowrap;}
 .cmb-export:hover:not(:disabled){background:var(--accent-gold-rgba-15);border-color:var(--accent-gold-rgba-60);transform:translateY(-1px);box-shadow:0 4px 14px var(--glow);}
 .cmb-export:disabled{opacity:.35;cursor:not-allowed;}
+
 .company-header-row,.company-data-row{display:grid!important;grid-template-columns:1.8fr 72px 115px 115px 110px 105px 105px 105px!important;align-items:center;direction:rtl;min-width:860px;}
 .company-header-row{background-color:var(--accent-gold-rgba-10);border-bottom:1px solid var(--border-color);}
 .company-data-row{cursor:pointer;transition:background-color .2s;border-bottom:1px solid var(--border-light);animation:rowIn 0.35s ease both;}
@@ -53,6 +72,7 @@ const CSS = `
   .company-data-row .table-country-cell{padding:0;}
 }
 `;
+
 function injectCSS() {
   if (document.getElementById('company-page-css')) return;
   const s = document.createElement('style');
@@ -69,11 +89,12 @@ function applyMargin(rate, margin) {
   return { ...rate, clientBuy: buy, clientSell: sell, clientAvg: avg };
 }
 
-function exportToExcel(rows, margin, maxMargin) {
+function exportToExcel(rows, margin, maxMargin, source) {
   const today = new Date().toLocaleDateString('ar-SY');
+  const srcLabel = source ? FOREX_SOURCE_LABELS[source] : 'النشرة الرسمية';
   const ws1 = XLSX.utils.aoa_to_sheet([
     ['نشرات البنك المركزي السوري — جدول أسعار الشركة'],
-    [`تاريخ: ${today}   |   هامش البنك المركزي: ${maxMargin}%   |   هامش الشركة: ${margin}%`],
+    [`تاريخ: ${today}   |   المصدر: ${srcLabel}   |   هامش البنك المركزي: ${maxMargin}%   |   هامش الشركة: ${margin}%`],
     [],
     ['البلد','الكود','شراء العميل','بيع العميل','وسطي العميل','شراء النشرة','بيع النشرة','وسطي النشرة'],
     ...rows.map(r=>[r.country,r.code,r.clientBuy,r.clientSell,r.clientAvg,Number(r.buy),Number(r.sell),Number(r.average??r.avg)]),
@@ -91,70 +112,152 @@ function exportToExcel(rows, margin, maxMargin) {
   XLSX.writeFile(wb,`نشرة_الشركة_${today.replace(/\//g,'-')}.xlsx`);
 }
 
+const FOREX_SOURCES = [
+  { id: 'central',   label: 'المركزي (فوركس)' },
+  { id: 'reuters',   label: 'Reuters'           },
+  { id: 'investing', label: 'Investing'         },
+];
+
 export default function CompanyPage() {
   useEffect(() => { injectCSS(); }, []);
 
   const [selectedId,      setSelectedId]      = useState('USD');
   const [effectiveMargin, setEffectiveMargin] = useState(0);
+  const [forexSource,     setForexSource]     = useState(null); // null = نشرة رسمية
+  const [dropOpen,        setDropOpen]        = useState(false);
+  const dropRef = useRef(null);
 
-  const { rates, loading, error, priceMargin } = useOfficialRates();
+  const { rates: officialRates, loading: offLoading, error: offError, priceMargin } = useOfficialRates();
+  const { rows:  forexRows,     loading: fxLoading,  error: fxError  } = useForexRates(forexSource);
+
   const maxMargin = getSafeMargin(priceMargin);
 
-  // callback مستقر — Table بيستدعيه لما يتغير الهامش
-  const handleMarginChange = useCallback((m) => {
-    setEffectiveMargin(m);
+  // إغلاق الـ dropdown لما يضغط برا
+  useEffect(() => {
+    function handle(e) {
+      if (dropRef.current && !dropRef.current.contains(e.target)) setDropOpen(false);
+    }
+    document.addEventListener('mousedown', handle);
+    return () => document.removeEventListener('mousedown', handle);
   }, []);
 
+  const handleMarginChange = useCallback((m) => { setEffectiveMargin(m); }, []);
+
+  // الأسعار المستخدمة — فوركس للعملات غير USD، رسمي لـ USD دايماً
+  const baseRates = useMemo(() => {
+    if (!forexSource || !forexRows.length) return officialRates;
+    const usdOfficial = officialRates.find(r => r.code === 'USD');
+    const merged = forexRows.map(r => ({
+      ...r,
+      average: r.average ?? r.avg,
+    }));
+    // USD دايماً من النشرة الرسمية
+    if (usdOfficial) {
+      const idx = merged.findIndex(r => r.code === 'USD');
+      if (idx >= 0) merged[idx] = usdOfficial;
+      else merged.unshift(usdOfficial);
+    }
+    return merged;
+  }, [forexSource, forexRows, officialRates]);
+
   const rows = useMemo(
-    () => rates.map(r => applyMargin(r, effectiveMargin)),
-    [rates, effectiveMargin]
+    () => baseRates.map(r => applyMargin(r, effectiveMargin)),
+    [baseRates, effectiveMargin]
   );
 
   const usdRates  = useMemo(() => rows.find(r => r.code === 'USD') || null, [rows]);
   const canExport = rows.length > 0 && effectiveMargin !== 0;
+  const isLoading = offLoading || fxLoading;
+  const error     = offError || fxError;
 
-  // لون الهامش حسب الإشارة
   const marginColor = effectiveMargin > 0 ? 'var(--green)' : effectiveMargin < 0 ? 'var(--red)' : 'var(--text-secondary)';
 
   return (
     <>
       <CurrencyHero selectedId={selectedId} onSelect={setSelectedId} />
-
-      {/* Table ترفع الهامش عبر onMarginChange */}
       <Table onMarginChange={handleMarginChange} />
-
       <TableNavBar />
 
       <section className="table-section">
         <div className="table-layout">
           <div className="company-table-wrap">
 
-            {/* ── شريط معلومات — بدون input ── */}
+            {/* ── شريط المعلومات ── */}
             <div className="company-margin-bar">
 
-              {/* الهامش المطبّق حالياً */}
-              <div className="cmb-group">
-                <span className="cmb-label">هامش الشركة المطبّق</span>
-                <span className="cmb-margin-display" style={{color: marginColor}}>
-                  {effectiveMargin > 0 ? '+' : ''}{effectiveMargin}%
-                </span>
+              {/* Forex dropdown */}
+              <div className="cmb-forex-wrap" ref={dropRef}>
+                <button
+                  className={`cmb-forex-btn ${forexSource ? 'cmb-forex-btn--active' : ''}`}
+                  onClick={() => setDropOpen(o => !o)}
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="1" y1="6" x2="23" y2="6"/><line x1="1" y1="12" x2="23" y2="12"/><line x1="1" y1="18" x2="23" y2="18"/>
+                  </svg>
+                  {forexSource ? FOREX_SOURCE_LABELS[forexSource] : 'مصدر الفوركس'}
+                  <span style={{fontSize:'10px',opacity:.7}}>{dropOpen ? '▲' : '▾'}</span>
+                </button>
+
+                {dropOpen && (
+                  <div className="cmb-forex-dropdown">
+                    {FOREX_SOURCES.map(s => (
+                      <button
+                        key={s.id}
+                        className={`cmb-forex-item ${forexSource === s.id ? 'cmb-forex-item--active' : ''}`}
+                        onClick={() => { setForexSource(s.id); setDropOpen(false); }}
+                      >
+                        {s.label}
+                      </button>
+                    ))}
+                    {forexSource && (
+                      <button
+                        className="cmb-forex-item"
+                        style={{color:'var(--red)',borderTop:'1px solid var(--border-color)'}}
+                        onClick={() => { setForexSource(null); setDropOpen(false); }}
+                      >
+                        ✕ العودة للنشرة الرسمية
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
+
+              {/* مصدر الفوركس النشط */}
+              {forexSource && (
+                <span className="cmb-forex-source-badge">
+                  📡 {FOREX_SOURCE_LABELS[forexSource]}
+                </span>
+              )}
 
               {/* Badges USD */}
               {usdRates && (
-                <div className="cmb-group">
-                  <div className="cmb-badges">
-                    <span className="cmb-badge cmb-badge--buy">شراء {usdRates.clientBuy.toLocaleString()}</span>
-                    <span className="cmb-badge cmb-badge--sell">بيع {usdRates.clientSell.toLocaleString()}</span>
-                    <span className="cmb-badge cmb-badge--avg">وسطي {usdRates.clientAvg.toLocaleString()}</span>
-                  </div>
+                <div className="cmb-inline-row">
+                  <span className="cmb-badge cmb-badge--buy">
+                    <span className="cmb-badge-label">شراء</span>
+                    {usdRates.clientBuy.toLocaleString()}
+                  </span>
+                  <span className="cmb-margin-pill" style={{
+                    color: marginColor,
+                    borderColor: effectiveMargin > 0 ? 'var(--green-border)' : effectiveMargin < 0 ? 'var(--red-border)' : 'var(--border-heavy)',
+                    background:  effectiveMargin > 0 ? 'var(--green-bg)'    : effectiveMargin < 0 ? 'var(--red-bg)'    : 'var(--accent-gold-rgba-06)',
+                  }}>
+                    {effectiveMargin > 0 ? '+' : ''}{effectiveMargin}%
+                  </span>
+                  <span className="cmb-badge cmb-badge--sell">
+                    <span className="cmb-badge-label">بيع</span>
+                    {usdRates.clientSell.toLocaleString()}
+                  </span>
+                  <span className="cmb-badge cmb-badge--avg">
+                    <span className="cmb-badge-label">وسطي</span>
+                    {usdRates.clientAvg.toLocaleString()}
+                  </span>
                 </div>
               )}
 
               <button
                 className="cmb-export"
                 disabled={!canExport}
-                onClick={() => exportToExcel(rows, effectiveMargin, maxMargin)}
+                onClick={() => exportToExcel(rows, effectiveMargin, maxMargin, forexSource)}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -166,10 +269,10 @@ export default function CompanyPage() {
             </div>
 
             {/* ── الجدول ── */}
-            {loading && <div className="forex-state-msg">جاري تحميل البيانات…</div>}
-            {error   && <div className="forex-state-msg forex-state-msg--error">{error}</div>}
+            {isLoading && <div className="forex-state-msg">جاري تحميل البيانات…</div>}
+            {error     && <div className="forex-state-msg forex-state-msg--error">{error}</div>}
 
-            {!loading && !error && rows.length > 0 && (
+            {!isLoading && !error && rows.length > 0 && (
               <>
                 <div className="company-header-row">
                   <div className="table-header-cell col-country">البلد</div>
@@ -183,11 +286,11 @@ export default function CompanyPage() {
                 </div>
                 <div className="table-body">
                   {rows.map((row, i) => {
-                    const isSelected = row.id === selectedId;
+                    const isSelected = row.id === selectedId || row.code === selectedId;
                     return (
                       <div
-                        key={row.id}
-                        onClick={() => setSelectedId(row.id)}
+                        key={row.id ?? row.code}
+                        onClick={() => setSelectedId(row.code)}
                         className={`company-data-row ${i % 2 === 0 ? 'table-row-even' : 'table-row-odd'}${isSelected ? ' table-row-selected' : ''}`}
                       >
                         <div className="table-country-cell col-country">
