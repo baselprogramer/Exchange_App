@@ -24,11 +24,7 @@ async function fetchExchangeRate() {
   if(data.conversion_rates.EUR ) { data.conversion_rates.EUR = parseFloat((1/data.conversion_rates.EUR).toFixed(4)); }
   if(data.conversion_rates.GBP ) { data.conversion_rates.GBP = parseFloat((1/data.conversion_rates.GBP).toFixed(4)); }
   if(data.conversion_rates.AUD ) { data.conversion_rates.AUD = parseFloat((1/data.conversion_rates.AUD).toFixed(4)); }
-
-
   return buildRows(data.conversion_rates);
-
-  
 }
 
 async function fetchCoinbase() {
@@ -36,12 +32,10 @@ async function fetchCoinbase() {
   const data = await res.json();
   const raw  = data.data.rates;
   if(data.data.rates.EUR ) { data.data.rates.EUR = parseFloat((1/data.data.rates.EUR).toFixed(4)); }
- if(data.data.rates.GBP ) { data.data.rates.GBP = parseFloat((1/data.data.rates.GBP).toFixed(4)); }
- if(data.data.rates.AUD ) { data.data.rates.AUD = parseFloat((1/data.data.rates.AUD).toFixed(4)); }
+  if(data.data.rates.GBP ) { data.data.rates.GBP = parseFloat((1/data.data.rates.GBP).toFixed(4)); }
+  if(data.data.rates.AUD ) { data.data.rates.AUD = parseFloat((1/data.data.rates.AUD).toFixed(4)); }
   const rates = {};
   for (const [key, val] of Object.entries(raw)) rates[key] = parseFloat(val);
-
-
   return buildRows(rates);
 }
 

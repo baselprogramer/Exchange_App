@@ -2,7 +2,7 @@ import { useOfficialRates } from './useOfficialRates';
 import CurrencyConverter from './CurrencyConverter';
 
 export default function ExchangeTable({ selectedId, onSelect }) {
-  const { rates, loading, error, priceMargin } = useOfficialRates();
+  const { rates, loading, error } = useOfficialRates();
 
   return (
     <section className="table-section">

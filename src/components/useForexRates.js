@@ -46,13 +46,16 @@ async function fetchCentral() {
   const data = await res.json();
   return (data.rows || []).map(r => ({
     ...r,
-    average: parseFloat(((Number(r.buy) + Number(r.sell)) / 2).toFixed(2)),
+    average: parseFloat(((Number(r.buy) + Number(r.sell)) / 2).toFixed(3)),
   }));
 }
 
 async function fetchReuters() {
   const res  = await fetch(`https://v6.exchangerate-api.com/v6/${REUTERS_KEY}/latest/USD`);
   const data = await res.json();
+  if(data.conversion_rates.EUR ) { data.conversion_rates.EUR = parseFloat((1/data.conversion_rates.EUR).toFixed(4)); }
+  if(data.conversion_rates.GBP ) { data.conversion_rates.GBP = parseFloat((1/data.conversion_rates.GBP).toFixed(4)); }
+  if(data.conversion_rates.AUD ) { data.conversion_rates.AUD = parseFloat((1/data.conversion_rates.AUD).toFixed(4)); }
   return buildRows(data.conversion_rates);
 }
 
@@ -60,6 +63,9 @@ async function fetchCoinbase() {
   const res  = await fetch('https://api.coinbase.com/v2/exchange-rates?currency=USD');
   const data = await res.json();
   const raw  = data.data.rates;
+  if(data.data.rates.EUR ) { data.data.rates.EUR = parseFloat((1/data.data.rates.EUR).toFixed(4)); }
+  if(data.data.rates.GBP ) { data.data.rates.GBP = parseFloat((1/data.data.rates.GBP).toFixed(4)); }
+  if(data.data.rates.AUD ) { data.data.rates.AUD = parseFloat((1/data.data.rates.AUD).toFixed(4)); }
   const rates = {};
   for (const [key, val] of Object.entries(raw)) rates[key] = parseFloat(val);
   return buildRows(rates);
