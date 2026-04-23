@@ -116,7 +116,7 @@ const usdRow = [
         const buy  = r.finalBuy  ?? r.clientBuy;
         const sell = r.finalSell ?? r.clientSell;
         const avg  = r.finalAvg  ?? r.clientAvg;
-        return [r.country, r.code, buy, sell, avg, Number(r.buy), Number(r.sell), Number(r.average ?? r.avg)];
+        return [r.country, r.code, buy, sell, avg,Number(r.buy).toFixed(3), Number(r.sell).toFixed(3), Number( r.average ?? r.avg).toFixed(3)];
       }),
   ]);
   ws1['!cols'] = [{wch:22},{wch:8},{wch:16},{wch:16},{wch:16},{wch:16},{wch:16},{wch:16}];
@@ -200,7 +200,7 @@ export default function CompanyPage() {
 
     const usdRates  = useMemo(() => rows.find(r => r.code === 'USD') || null, [rows]);
 
-    /******* Computing The Final Rates Here : (Under developing)   ************/
+    /************ Computing The Final Rates Here ************/
 
     const finalRates = useMemo(() => {
       if (!forexRows.length) return [];
@@ -209,13 +209,14 @@ export default function CompanyPage() {
       if (!usdAvg) return [];
 
       return forexRows.map(r => {
-        const forexAvg = r.avg ?? r.average;
+        
+        const forexAvg = r.mid ?? r.avg ?? r.average;
         const finalAvg  = MULTIPLY_CURRENCIES.includes(r.code)
-          ? parseFloat((usdAvg * forexAvg).toFixed(4))
-          : parseFloat((usdAvg / forexAvg).toFixed(4));
+          ? parseFloat((usdAvg * forexAvg).toFixed(3))
+          : parseFloat((usdAvg / forexAvg).toFixed(3));
 
-        const finalSell = parseFloat((finalAvg * 0.995495495495496).toFixed(4));
-        const finalBuy  = parseFloat((finalAvg * 1.00454545454545).toFixed(4));
+        const finalBuy = parseFloat((finalAvg * 0.995495495495496).toFixed(3));
+        const finalSell  = parseFloat((finalAvg * 1.00454545454545).toFixed(3));
 
         return { ...r, finalAvg, finalSell, finalBuy };
       });
@@ -225,7 +226,7 @@ export default function CompanyPage() {
     const displayRows = finalRates.length > 0 ? finalRates : rows;
     const FinalRates = finalRates.map(r => `${r.code} → avg: ${r.finalAvg} | buy: ${r.finalBuy} | sell: ${r.finalSell}`)
 
-    const canExport = rows.length > 0 && effectiveMargin !== 0;
+    const canExport = rows.length > 0;
     const isLoading = offLoading || fxLoading;
     const error     = offError || fxError;
 
@@ -354,7 +355,7 @@ export default function CompanyPage() {
 
                     const forexBuy  = Number(row.buy);
                     const forexSell = Number(row.sell);
-                    const forexAvg  = Number(row.average ?? row.avg);
+                    const forexAvg  = Number(row.mid ?? row.average ?? row.avg);
 
                     return (
                       <div
@@ -380,23 +381,29 @@ export default function CompanyPage() {
                         <div className="table-data-cell col-num desktop-cell col-sep-after">
                           <span className="table-numeric mgt-avg">{avg.toLocaleString()}</span>
                         </div>
+
+                            {/* 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 } */}
+
                         <div className="table-data-cell col-num desktop-cell mgt-official">
                           <span className="table-numeric">{forexBuy.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}</span>
                         </div>
+                        
                         <div className="table-data-cell col-num desktop-cell mgt-official">
                           <span className="table-numeric">{forexSell.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}</span>
                         </div>
+
                         <div className="table-data-cell col-num desktop-cell mgt-official">
                           <span className="table-numeric">{forexAvg.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}</span>
                         </div>
+
                         <div className="card-chips">
                           <div className="chip"><span className="chip__label">كود</span><span className="chip__value chip__value--code">{row.code}</span></div>
                           <div className="chip"><span className="chip__label">شراء الشركة</span><span className="chip__value mgt-buy">{buy.toLocaleString()}</span></div>
                           <div className="chip"><span className="chip__label">بيع الشركة</span><span className="chip__value mgt-sell">{sell.toLocaleString()}</span></div>
                           <div className="chip"><span className="chip__label">وسطي الشركة</span><span className="chip__value mgt-avg">{avg.toLocaleString()}</span></div>
-                          <div className="chip"><span className="chip__label">شراء forex</span><span className="chip__value">{forexBuy.toLocaleString()}</span></div>
-                          <div className="chip"><span className="chip__label">بيع forex</span><span className="chip__value">{forexSell.toLocaleString()}</span></div>
-                          <div className="chip"><span className="chip__label">وسطي forex</span><span className="chip__value">{forexAvg.toLocaleString()}</span></div>
+                          <div className="chip"><span className="chip__label">شراء النشرة المعتمدة</span><span className="chip__value">{forexBuy.toLocaleString()}</span></div>
+                          <div className="chip"><span className="chip__label">بيع النشرة المعتمدة</span><span className="chip__value">{forexSell.toLocaleString()}</span></div>
+                          <div className="chip"><span className="chip__label">وسطي النشرة المعتمدة</span><span className="chip__value">{forexAvg.toLocaleString()}</span></div>
                         </div>
                       </div>
                     );
