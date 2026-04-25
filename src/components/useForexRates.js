@@ -45,13 +45,20 @@ function buildRows(rates) {
 }
 
 async function fetchCentral() {
-  const res  = await fetch(FOREX_URL);
+  const res = await fetch(FOREX_URL);
   if (!res.ok) throw new Error('Network error');
   const data = await res.json();
-  return (data.rows || []).map(r => ({
-    ...r,
-    average: parseFloat(((Number(r.buy) + Number(r.sell)) / 2).toFixed(3)),
-  }));
+  
+  const allRows = data.rows || [];
+
+  return allRows
+    .filter(row => CURRENCY_IDS.includes(row.code))
+    .map(r => ({
+      ...r,
+      country: NAMES[r.code] || r.country,
+      flag: FLAGS[r.code] || r.flag,    
+      average: parseFloat(((Number(r.buy) + Number(r.sell)) / 2).toFixed(3)),
+    }));
 }
 
 async function fetchReuters() {

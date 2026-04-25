@@ -48,9 +48,11 @@ const FLAGS = {
   SAR:'https://flagcdn.com/w40/sa.png', QAR:'https://flagcdn.com/w40/qa.png',
   AED:'https://flagcdn.com/w40/ae.png', KWD:'https://flagcdn.com/w40/kw.png',
   BHD:'https://flagcdn.com/w40/bh.png', OMR:'https://flagcdn.com/w40/om.png',
+  JOD:'https://flagcdn.com/w40/jo.png', EGP:'https://flagcdn.com/w40/eg.png',
+  CHF:'https://flagcdn.com/w40/ch.png', CAD:'https://flagcdn.com/w40/ca.png',
   DKK:'https://flagcdn.com/w40/dk.png', SEK:'https://flagcdn.com/w40/se.png',
   NOK:'https://flagcdn.com/w40/no.png', AUD:'https://flagcdn.com/w40/au.png',
-  RUB:'https://flagcdn.com/w40/ru.png',
+  RUB:'https://flagcdn.com/w40/ru.png'
 };
 
 const NAMES = {
@@ -60,9 +62,11 @@ const NAMES = {
   SAR:'الريال السعودي',      QAR:'الريال القطري',
   AED:'الدرهم الإماراتي',   KWD:'الدينار الكويتي',
   BHD:'الدينار البحريني',   OMR:'الريال العماني',
-  DKK:'الكرون الدنماركي',  SEK:'الكرون السويدي',
+  JOD:'الدينار الاردني'  ,    EGP:'الجنبة المصري',
+  CHF:'الفرنك السويسري' ,    CAD:'الدولار الكندي',
+  DKK:'الكرون الدنماركي',   SEK:'الكرون السويدي',
   NOK:'الكرون النرويجي',    AUD:'الدولار الأسترالي',
-  RUB:'الروبل الروسي',
+  RUB:'الروبل الروسي'
 };
 
 const CURRENCY_IDS = Object.keys(FLAGS).filter(id => id !== 'USD');

@@ -116,7 +116,7 @@ const usdRow = [
         const buy  = r.finalBuy  ?? r.clientBuy;
         const sell = r.finalSell ?? r.clientSell;
         const avg  = r.finalAvg  ?? r.clientAvg;
-        return [r.country, r.code, buy, sell, avg,Number(r.buy).toFixed(3), Number(r.sell).toFixed(3), Number( r.average ?? r.avg).toFixed(3)];
+        return [r.country, r.code, buy, sell, avg,Number(r.buy), Number(r.sell), Number( r.mid ?? r.average ?? r.avg)];
       }),
   ]);
   ws1['!cols'] = [{wch:22},{wch:8},{wch:16},{wch:16},{wch:16},{wch:16},{wch:16},{wch:16}];
@@ -212,8 +212,8 @@ export default function CompanyPage() {
         
         const forexAvg = r.mid ?? r.avg ?? r.average;
         const finalAvg  = MULTIPLY_CURRENCIES.includes(r.code)
-          ? parseFloat((usdAvg * forexAvg).toFixed(3))
-          : parseFloat((usdAvg / forexAvg).toFixed(3));
+              ? parseFloat((usdAvg * forexAvg).toFixed(3))
+              : parseFloat((usdAvg / forexAvg).toFixed(3))
 
         const finalBuy = parseFloat((finalAvg * 0.995495495495496).toFixed(3));
         const finalSell  = parseFloat((finalAvg * 1.00454545454545).toFixed(3));
@@ -379,7 +379,7 @@ export default function CompanyPage() {
                           <span className="table-numeric mgt-sell">{sell.toLocaleString()}</span>
                         </div>
                         <div className="table-data-cell col-num desktop-cell col-sep-after">
-                          <span className="table-numeric mgt-avg">{avg.toLocaleString()}</span>
+                          <span className="table-numeric mgt-avg">{avg.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}</span>
                         </div>
 
                             {/* 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 } */}
