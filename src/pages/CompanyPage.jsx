@@ -135,8 +135,6 @@ export default function CompanyPage() {
       const finalBuy  = floor3(finalAvg * 0.995495495495496);
       const finalSell = floor3(finalAvg * 1.00454545454545);
       return { ...r, finalAvg, finalBuy, finalSell };
-      // finalAvg is stored directly from the floored raw calculation
-      // it is NEVER recomputed from (finalBuy + finalSell) / 2
     });
   }, [usdRates, forexRows]);
 
