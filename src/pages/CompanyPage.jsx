@@ -12,13 +12,17 @@ function getSafeMargin(raw) {
   return n;
 }
 
+// Always truncate down at 3 decimal places, never round up
+const floor3 = (n) => Math.floor(n * 1000) / 1000;
+
 function applyMargin(rate, margin) {
   const mul  = 1 + (Number(margin) || 0) / 100;
-  const buy  = parseFloat((Number(rate.buy)  * mul).toFixed(3));
-  const sell = parseFloat((Number(rate.sell) * mul).toFixed(3));
-  const avg  = parseFloat(((buy + sell) / 2).toFixed(3));
+  const avg  = Number(rate.average ?? rate.avg) * mul;
+  const buy  = Number(rate.buy)  * mul;
+  const sell = Number(rate.sell) * mul;
   return { ...rate, clientBuy: buy, clientSell: sell, clientAvg: avg };
 }
+
 
 function exportToExcel(displayRows, margin, maxMargin, source, usdRates) {
   const today    = new Date().toLocaleDateString('ar-SY');
@@ -123,14 +127,19 @@ export default function CompanyPage() {
     if (!usdAvg) return [];
     return forexRows.map(r => {
       const forexAvg = r.mid ?? r.avg ?? r.average;
-      const finalAvg = MULTIPLY_CURRENCIES.includes(r.code)
-        ? parseFloat((usdAvg * forexAvg).toFixed(3))
-        : parseFloat((usdAvg / forexAvg).toFixed(3));
-      const finalBuy  = parseFloat((finalAvg * 0.995495495495496).toFixed(3));
-      const finalSell = parseFloat((finalAvg * 1.00454545454545).toFixed(3));
-      return { ...r, finalAvg, finalSell, finalBuy };
+      const finalAvg = floor3(
+        MULTIPLY_CURRENCIES.includes(r.code)
+          ? usdAvg * forexAvg
+          : usdAvg / forexAvg
+      );
+      const finalBuy  = floor3(finalAvg * 0.995495495495496);
+      const finalSell = floor3(finalAvg * 1.00454545454545);
+      return { ...r, finalAvg, finalBuy, finalSell };
+      // finalAvg is stored directly from the floored raw calculation
+      // it is NEVER recomputed from (finalBuy + finalSell) / 2
     });
   }, [usdRates, forexRows]);
+
 
   const displayRows  = finalRates.length > 0 ? finalRates : rows;
   const canExport    = rows.length > 0;
@@ -285,7 +294,7 @@ export default function CompanyPage() {
                           <span className="table-numeric mgt-sell">{sell.toLocaleString()}</span>
                         </div>
                         <div className="table-data-cell col-num desktop-cell col-sep-after">
-                          <span className="table-numeric mgt-avg">{avg.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}</span>
+                          <span className="table-numeric mgt-avg">{avg.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })}</span>
                         </div>
                         <div className="table-data-cell col-num desktop-cell mgt-official">
                           <span className="table-numeric">{forexBuy.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}</span>
