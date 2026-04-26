@@ -139,7 +139,8 @@ export default function Table({ onMarginChange }) {
       {/* صف أسعار العميل */}
       <div className="st-sub-row" style={{borderTop:'1px solid var(--border-color)',background:'var(--accent-gold-rgba-06)'}}>
         <div className="st-cell st-cell--empty"></div>
-        <div className="st-cell">
+          <div className="st-cell st-cell--sub-label">سعر العميل</div>
+          <div className="st-cell">
           <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'2px'}}>
             <span style={{fontSize:'9px',color:'var(--text-secondary)',fontFamily:'Tajawal,sans-serif',textTransform:'uppercase'}}>شراء العميل</span>
             <span className="st-num" style={{color:'var(--green)',fontWeight:700,fontSize:'15px'}}>{clientBuy.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
@@ -151,7 +152,8 @@ export default function Table({ onMarginChange }) {
             <span className="st-num" style={{color:'var(--red)',fontWeight:700,fontSize:'15px'}}>{clientSell.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </div>
         </div>
-        <div className="st-cell st-cell--sub-label">سعر العميل</div>
+
+
         <div className="st-cell">
           <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'2px'}}>
             <span style={{fontSize:'9px',color:'var(--text-secondary)',fontFamily:'Tajawal,sans-serif',textTransform:'uppercase'}}>الوسطي</span>
