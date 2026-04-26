@@ -73,7 +73,7 @@ export default function Table({ onMarginChange }) {
           <span className="st-num">{(average * (1 - maxMargin / 100)).toFixed(2)}</span>
         </div>
         <div className="st-cell">
-          <span className="st-num">{(average * (1 + maxMargin / 100)).toFixed(2)}</span>
+          <span className="st-num">{(average * (1 + maxMargin / 100)).toFixed(3)}</span>
         </div>
         <div className="st-cell st-cell--highlight">
           <span className="st-num">{average.toFixed(2)}</span>
@@ -155,7 +155,7 @@ export default function Table({ onMarginChange }) {
         <div className="st-cell">
           <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:'2px'}}>
             <span style={{fontSize:'9px',color:'var(--text-secondary)',fontFamily:'Tajawal,sans-serif',textTransform:'uppercase'}}>الوسطي</span>
-            <span className="st-num" style={{color:'var(--accent-gold)',fontWeight:700,fontSize:'14px'}}>{clientAvg.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            <span className="st-num" style={{color:'var(--accent-gold)',fontWeight:700,fontSize:'14px'}}>{clientAvg.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3})}</span>
           </div>
         </div>
         <div className="st-cell"></div>
